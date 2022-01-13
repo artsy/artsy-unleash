@@ -1,0 +1,19 @@
+---
+version: '2'
+services:
+  artsy-unleash:
+    environment:
+      - HTTP_PORT=8080
+      - DATABASE_URL=postgresql://postgres:@artsy-unleash-postgres/unleash_development
+      - DATABASE_SSL=false
+    build:
+      context: ../
+    ports:
+      - 8080:8080
+    depends_on:
+      - artsy-unleash-postgres
+  artsy-unleash-postgres:
+    image: postgres:12.5-alpine
+    environment:
+      - POSTGRES_DB=unleash_development
+      - POSTGRES_HOST_AUTH_METHOD=trust
