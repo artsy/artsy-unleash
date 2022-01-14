@@ -17,3 +17,14 @@ services:
     environment:
       - POSTGRES_DB=unleash_development
       - POSTGRES_HOST_AUTH_METHOD=trust
+  artsy-unleash-proxy:
+    image: unleashorg/unleash-proxy
+    environment:
+      - PORT=4242
+      - UNLEASH_API_TOKEN=REPLACE_ME
+      - UNLEASH_PROXY_SECRETS=some-secret
+      - UNLEASH_URL=http://artsy-unleash:8080/api/
+    ports:
+      - 4242:4242
+    depends_on:
+      - artsy-unleash
