@@ -3,6 +3,5 @@ version: '2'
 services:
   {{ project_name }}:
     command: ["echo", "noop"]
-    env_file: ../.env.test
     build:
       context: ../
