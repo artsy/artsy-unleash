@@ -29,7 +29,7 @@ workflows:
       - horizon/block:
           <<: *only_release
           context: horizon
-          project_id: 99
+          project_id: 265
 
       - hokusai/test:
           <<: *not_staging_or_release
