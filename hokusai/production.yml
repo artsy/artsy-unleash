@@ -85,7 +85,7 @@ spec:
     kind: Deployment
     name: artsy-unleash-web
   minReplicas: 2
-  maxReplicas: 2
+  maxReplicas: 5
   targetCPUUtilizationPercentage: 70
 
 ---
