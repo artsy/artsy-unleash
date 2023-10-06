@@ -250,7 +250,7 @@ spec:
     component: web
   type: ClusterIP
 ---
-apiVersion: networking.k8s.io/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: artsy-unleash-proxy
@@ -263,5 +263,7 @@ spec:
       - path: /
         pathType: Prefix
         backend:
-          serviceName: artsy-unleash-proxy-web-internal
-          servicePort: prx-http
+          service:
+            name: artsy-unleash-proxy-web-internal
+            port:
+              name: prx-http
