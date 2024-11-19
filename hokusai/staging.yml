@@ -223,7 +223,7 @@ spec:
         - name: secrets
           mountPath: /secrets
           readOnly: true
-        image: unleashorg/unleash-proxy
+        image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/artsy-unleash-proxy:latest
         imagePullPolicy: Always
         ports:
         - name: unleashprx-http
