@@ -205,6 +205,13 @@ spec:
         volumeMounts:
         - name: secrets
           mountPath: /secrets
+      - name: setperms
+        image: busybox
+        command: ["sh", "-c", "chmod +x /usr/local/bin/load_secrets_and_run.sh"]
+        volumeMounts:
+        - name: scripts
+          mountPath: /usr/local/bin/load_secrets_and_run.sh
+          subPath: load_secrets_and_run.sh
       containers:
       - name: artsy-unleash-proxy-web
         env:
@@ -223,7 +230,10 @@ spec:
         - name: secrets
           mountPath: /secrets
           readOnly: true
-        image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/artsy-unleash-proxy:latest
+        - name: scripts
+          mountPath: /usr/local/bin/load_secrets_and_run.sh
+          subPath: load_secrets_and_run.sh
+        image: unleashorg/unleash-proxy
         imagePullPolicy: Always
         ports:
         - name: unleashprx-http
@@ -248,6 +258,8 @@ spec:
               - sh
               - -c
               - sleep 5
+        command: ["/usr/local/bin/docker-entrypoint.sh", "/usr/local/bin/load_secrets_and_run.sh"]
+        args: ["/bin/sh", "-c", "./server.sh"]
       dnsPolicy: ClusterFirst
       dnsConfig:
         options:
@@ -266,6 +278,29 @@ spec:
       volumes:
       - name: secrets
         emptyDir: {}
+      - name: scripts
+        configMap:
+          name: unleash-proxy-scripts
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: unleash-proxy-scripts
+  namespace: default
+data:
+  load_secrets_and_run.sh: |
+    #!/bin/sh
+
+    CMD="$@"
+
+    if [ ! -z "$SECRETS_FILE" ]
+    then
+      echo "SECRETS_FILE env var is defined. Sourcing secrets file..."
+      source "$SECRETS_FILE"
+    fi
+
+    echo "Running command: $CMD"
+    $CMD
 ---
 apiVersion: autoscaling/v1
 kind: HorizontalPodAutoscaler
