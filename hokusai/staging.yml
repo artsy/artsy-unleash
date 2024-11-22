@@ -165,8 +165,8 @@ metadata:
   name: artsy-unleash-proxy-web
   namespace: default
   labels:
-    app: artsy-unleash-proxy
-    component: web
+    app: artsy-unleash
+    component: proxy-web
     layer: application
     app.kubernetes.io/version: staging
 spec:
@@ -320,8 +320,8 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    app: artsy-unleash-proxy
-    component: web
+    app: artsy-unleash
+    component: proxy-web
     layer: application
   name: artsy-unleash-proxy-web-internal
   namespace: default
