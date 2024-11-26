@@ -177,14 +177,14 @@ spec:
     type: RollingUpdate
   selector:
     matchLabels:
-      app: artsy-unleash-proxy
-      component: web
+      app: artsy-unleash
+      component: proxy-web
       layer: application
   template:
     metadata:
       labels:
-        app: artsy-unleash-proxy
-        component: web
+        app: artsy-unleash
+        component: proxy-web
         layer: application
         app.kubernetes.io/version: production
       name: artsy-unleash-proxy-web
@@ -332,9 +332,9 @@ spec:
     name: prx-http
     targetPort: unleashprx-http
   selector:
-    app: artsy-unleash-proxy
+    app: artsy-unleash
     layer: application
-    component: web
+    component: proxy-web
   type: ClusterIP
 ---
 apiVersion: networking.k8s.io/v1
