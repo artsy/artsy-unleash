@@ -205,13 +205,6 @@ spec:
         volumeMounts:
         - name: secrets
           mountPath: /secrets
-      - name: setperms
-        image: busybox
-        command: ["sh", "-c", "chmod +x /usr/local/bin/load_secrets_and_run.sh"]
-        volumeMounts:
-        - name: scripts
-          mountPath: /usr/local/bin/load_secrets_and_run.sh
-          subPath: load_secrets_and_run.sh
       containers:
       - name: artsy-unleash-proxy-web
         env:
@@ -281,6 +274,7 @@ spec:
       - name: scripts
         configMap:
           name: unleash-proxy-scripts
+          defaultMode: 0755
 ---
 apiVersion: v1
 kind: ConfigMap
