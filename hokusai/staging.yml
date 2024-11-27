@@ -28,6 +28,22 @@ spec:
         app.kubernetes.io/version: staging
       name: artsy-unleash-web
     spec:
+      initContainers:
+      - name: setenv
+        image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/fortress:staging
+        imagePullPolicy: Always
+        command:
+        - python
+        - src/load/load.py
+        - kubernetes
+        - staging
+        - artsy-unleash
+        envFrom:
+        - configMapRef:
+            name: secrets-config
+        volumeMounts:
+        - name: secrets
+          mountPath: /secrets
       containers:
       - name: artsy-unleash-web
         env:
@@ -39,7 +55,13 @@ spec:
               fieldPath: metadata.labels['app.kubernetes.io/version']
         envFrom:
         - configMapRef:
+            name: secrets-config
+        - configMapRef:
             name: artsy-unleash-environment
+        volumeMounts:
+        - name: secrets
+          mountPath: /secrets
+          readOnly: true
         image: {{ project_repo }}:staging
         imagePullPolicy: Always
         ports:
@@ -70,6 +92,7 @@ spec:
         options:
         - name: ndots
           value: '1'
+      serviceAccountName: artsy-unleash
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -79,6 +102,9 @@ spec:
                 operator: In
                 values:
                 - foreground
+      volumes:
+      - name: secrets
+        emptyDir: {}
 ---
 apiVersion: autoscaling/v1
 kind: HorizontalPodAutoscaler
@@ -139,8 +165,8 @@ metadata:
   name: artsy-unleash-proxy-web
   namespace: default
   labels:
-    app: artsy-unleash-proxy
-    component: web
+    app: artsy-unleash
+    component: proxy-web
     layer: application
     app.kubernetes.io/version: staging
 spec:
@@ -151,18 +177,34 @@ spec:
     type: RollingUpdate
   selector:
     matchLabels:
-      app: artsy-unleash-proxy
-      component: web
+      app: artsy-unleash
+      component: proxy-web
       layer: application
   template:
     metadata:
       labels:
-        app: artsy-unleash-proxy
-        component: web
+        app: artsy-unleash
+        component: proxy-web
         layer: application
         app.kubernetes.io/version: staging
       name: artsy-unleash-proxy-web
     spec:
+      initContainers:
+      - name: setenv
+        image: 585031190124.dkr.ecr.us-east-1.amazonaws.com/fortress:staging
+        imagePullPolicy: Always
+        command:
+        - python
+        - src/load/load.py
+        - kubernetes
+        - staging
+        - artsy-unleash-proxy
+        envFrom:
+        - configMapRef:
+            name: secrets-config
+        volumeMounts:
+        - name: secrets
+          mountPath: /secrets
       containers:
       - name: artsy-unleash-proxy-web
         env:
@@ -174,7 +216,16 @@ spec:
               fieldPath: metadata.labels['app.kubernetes.io/version']
         envFrom:
         - configMapRef:
+            name: secrets-config
+        - configMapRef:
             name: artsy-unleash-proxy-environment
+        volumeMounts:
+        - name: secrets
+          mountPath: /secrets
+          readOnly: true
+        - name: scripts
+          mountPath: /usr/local/bin/load_secrets_and_run.sh
+          subPath: load_secrets_and_run.sh
         image: unleashorg/unleash-proxy
         imagePullPolicy: Always
         ports:
@@ -200,11 +251,14 @@ spec:
               - sh
               - -c
               - sleep 5
+        command: ["/usr/local/bin/docker-entrypoint.sh", "/usr/local/bin/load_secrets_and_run.sh"]
+        args: ["/bin/sh", "-c", "./server.sh"]
       dnsPolicy: ClusterFirst
       dnsConfig:
         options:
         - name: ndots
           value: '1'
+      serviceAccountName: artsy-unleash-proxy
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -214,6 +268,33 @@ spec:
                 operator: In
                 values:
                 - foreground
+      volumes:
+      - name: secrets
+        emptyDir: {}
+      - name: scripts
+        configMap:
+          name: unleash-proxy-scripts
+          defaultMode: 0755
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: unleash-proxy-scripts
+  namespace: default
+data:
+  load_secrets_and_run.sh: |
+    #!/bin/sh
+
+    CMD="$@"
+
+    if [ ! -z "$SECRETS_FILE" ]
+    then
+      echo "SECRETS_FILE env var is defined. Sourcing secrets file..."
+      source "$SECRETS_FILE"
+    fi
+
+    echo "Running command: $CMD"
+    $CMD
 ---
 apiVersion: autoscaling/v1
 kind: HorizontalPodAutoscaler
@@ -233,8 +314,8 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    app: artsy-unleash-proxy
-    component: web
+    app: artsy-unleash
+    component: proxy-web
     layer: application
   name: artsy-unleash-proxy-web-internal
   namespace: default
@@ -245,9 +326,9 @@ spec:
     name: prx-http
     targetPort: unleashprx-http
   selector:
-    app: artsy-unleash-proxy
+    app: artsy-unleash
     layer: application
-    component: web
+    component: proxy-web
   type: ClusterIP
 ---
 apiVersion: networking.k8s.io/v1
