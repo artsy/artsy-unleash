@@ -1,4 +1,4 @@
-FROM unleashorg/unleash-server
+FROM unleashorg/unleash-server:6
 
 ENV HTTP_PORT 8080
 EXPOSE 8080
