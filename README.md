@@ -11,7 +11,7 @@ This repository is responsible for configuring and deploying Artsy's unleash ser
   * proxy: https://unleashprx-staging.artsy.net (proxies to **production** server with a "development" key)
 - **GitHub**: https://github.com/artsy/artsy-unleash
 - **[CircleCI](https://circleci.com/gh/artsy/artsy-unleash):** Merged PRs to artsy/artsy-unleash#main are automatically deployed to staging. PRs from `staging` to `release` are automatically deployed to production. [Start a deploy...](https://github.com/artsy/artsy-unleash/compare/release...staging?expand=1)
-- **Point People**: [@joeyAghion](https://github.com/joeyAghion/)
+- **Point People**: [@mc-jones](https://github.com/mc-jones)
 
 ### A note about environments
 
