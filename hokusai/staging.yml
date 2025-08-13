@@ -144,9 +144,9 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: artsy-unleash
+  name: artsy-unleash-2025
 spec:
-  ingressClassName: nginx-internal
+  ingressClassName: internal-nginx
   rules:
   - host: unleash.stg.artsy.systems
     http:
@@ -334,9 +334,9 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: artsy-unleash-proxy
+  name: artsy-unleash-proxy-2025
 spec:
-  ingressClassName: nginx
+  ingressClassName: external-nginx
   rules:
   - host: unleashprx-staging.artsy.net
     http:
